@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tauri Cosmos Wallet</title>
+</head>
+
+<body>
+    <h1>Tauri Cosmos Wallet</h1>
+    <div>
+        <label for="sendAmount">Amount to send:</label>
+        <input type="text" id="sendAmount">
+        <label for="recipientAddress">Recipient address:</label>
+        <input type="text" id="recipientAddress">
+        <button onclick="sendCoins()">Send Coins</button>
+        <p id="sendCoinsResult"></p>
+    </div>
+
+    <div>
+        <label for="address">Enter Cosmos address:</label>
+        <input type="text" id="address">
+        <button onclick="checkBalance()">Check Balance</button>
+        <p id="balanceResult"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Ensure Tauri is ready before setting up your event handlers
+            window.__TAURI__.invoke('tauri://listen', {
+                event: 'tauri://ready'
+            }).then(() => {
+                console.log('Tauri is ready');
+                // Set up your event handlers here
+            }).catch((error) => {
+                console.error('Error during Tauri initialization:', error);
+            });
+        });
+        async function sendCoins() {
+            const amount = document.getElementById('sendAmount').value;
+            const recipient = document.getElementById('recipientAddress').value;
+            try {
+                const response = await window.__TAURI__.invoke('send_coins', { amount, recipient });
+                document.getElementById('sendCoinsResult').textContent = response;
+            } catch (error) {
+                console.error('Error sending coins:', error);
+                document.getElementById('sendCoinsResult').textContent = 'Error sending coins';
+            }
+        }
+        
+        async function checkBalance() {
+            const address = document.getElementById('address').value;
+            try {
+                const response = await window.__TAURI__.invoke('query_balance', address);
+                document.getElementById('balanceResult').textContent = response;
+            } catch (error) {
+                console.error('Error checking balance:', error);
+                document.getElementById('balanceResult').textContent = 'Error checking balance';
+            }
+        }
+    </script>
+</body>
+
+</html>
